@@ -12,7 +12,7 @@ reddit = praw.Reddit(client_id='id',
 print("Authenticated as ", reddit.user.me())
 
 # print(reddit.user.me())
-# subreddit = reddit.subreddit("memes")
+
 
 
 def Unread_list():
@@ -34,7 +34,11 @@ def main(Allunreads):
             item.reply(answer)
             print("Replied")
     Clear_inbox(Unread_list())
-    time.sleep(5)
+    
+    
+while True:
+    main(Unread_List())
+    time.sleep(1200)
 
 
 main(Unread_list())
