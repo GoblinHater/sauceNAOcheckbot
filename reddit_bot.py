@@ -39,6 +39,3 @@ def main(Allunreads):
 while True:
     main(Unread_List())
     time.sleep(1200)
-
-
-main(Unread_list())
