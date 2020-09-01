@@ -21,10 +21,13 @@ def getSauce(url):
     search.send_keys(Keys.RETURN)
     driver.implicitly_wait(8)
     # time.sleep(8)
+    
+    # After site has loaded
     try:
         titlename = driver.find_element_by_class_name("resulttitle")
         print(titlename.text)
         # print(len(titlename.text))
+        # Below is to check if a non empty title is there (result can be found)
         if len(titlename.text) > 0:
             titlename = "Sauce: " + str(titlename.text) + "\n\n"
             # print(len(titlename))
@@ -38,12 +41,14 @@ def getSauce(url):
             reply = titlename + content + similarity + footer
             driver.quit()
             return reply
+        # If no result could be found
         else:
             print("No result")
             replyNeg = "Sorry I was not able to find the sauce.\n\nI did not check the low similarity options\n\n"
             replyNeg = replyNeg + "^I ^am ^a ^bot. ^give ^feedback ^to u/GoblinHater"
             driver.quit()
             return replyNeg
+    # If site has not yet loaded
     except:
         print("No result")
         replyNeg = "Sorry I was not able to find the sauce.\n\nI did not check the low similarity options\n\n"
