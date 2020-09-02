@@ -26,7 +26,7 @@ def Clear_inbox(inbox_list):
 
 def main(Allunreads):
     for item in Allunreads:
-        if "u/sauceNAOcheckbot" in item.body:
+        if "u/saucenaocheckbot" in item.body.lower():
             print(item.submission.url)
             submission_url = item.submission.url
             answer = getSauce(submission_url)
