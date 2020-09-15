@@ -13,13 +13,14 @@ PASSED_SUBREDDIT = ["Animefoot",
                     "AnimeFeets",
                     "sauceNAOcheckbot"]
 
-MODERATING_SUBREDDIT = []
+MODERATING_SUBREDDIT = ["sauceNAOcheckbot",
+                       "AnimeFeets"]
 
 
 print("Authenticating......")
-reddit = praw.Reddit(client_id='oN3VfNVpqx-2PQ',
-                     client_secret='WAwLO8aBPWLmaKG2CD02YuXvQ28',
-                     password='yomanarchit',
+reddit = praw.Reddit(client_id='id',
+                     client_secret='secret',
+                     password='password',
                      user_agent='/u/sauceNAOcheckbot by /u/GoblinHater',
                      username='sauceNAOcheckbot')
 print("Authenticated as ", reddit.user.me())
@@ -82,7 +83,10 @@ def subredditReply(post):
         answer = getSauceSubreddit(post.url)
         if answer:
             print("replying......")
-            post.reply(answer)
+            if str(post.subreddit) in MODERATING_SUBREDDIT:
+                post.reply(answer).mod.distinguish(sticky=True)
+            else:
+                post.reply(answer)
             print("replied")
         else:
             print("Not Results")
