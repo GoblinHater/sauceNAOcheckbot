@@ -1,8 +1,7 @@
 import praw
 import time
 
-from SauceNAO import getSauce
-from SauceNAO import getSauceSubreddit
+from SauceNAO import GetSauce
 
 TIME_BETWEEN_MENTION_CHECK = 1200   # 20 minutes
 
@@ -11,18 +10,15 @@ PASSED_SUBREDDIT = ["Animefoot",
                    "Hentai4Everyone",
                     "AnimeBooty",
                     "AnimeFeets",
-                    "sauceNAOcheckbot"]
+                    "sauceNAOcheckbot",
+                    "AzurLaneXXX"]
 
 MODERATING_SUBREDDIT = ["sauceNAOcheckbot",
                        "AnimeFeets"]
 
 
 print("Authenticating......")
-reddit = praw.Reddit(client_id='id',
-                     client_secret='secret',
-                     password='password',
-                     user_agent='/u/sauceNAOcheckbot by /u/GoblinHater',
-                     username='sauceNAOcheckbot')
+reddit = praw.Reddit('BOTNAME', user_agent='u/sauceNAOcheckbot by u/GoblinHater')
 print("Authenticated as ", reddit.user.me())
 
 # print(reddit.user.me())
@@ -58,38 +54,53 @@ def getMentions(Allunreads):
         if "u/saucenaocheckbot" in item.body.lower():
             print(item.submission.url)
             submission_url = item.submission.url
-            answer = getSauce(submission_url)
-            print("Replying.......")
-            item.reply(answer)
-            print("Replied")
+            if str(submission_url)[-3::] == "jpg" or str(submission_url)[-3::] == "png" or str(submission_url)[-4::] == "jpeg" or str(submission_url)[-3::] == "gif":
+                answer = GetSauce(submission_url)
+                time.sleep(5)
+                print("Replying.......")
+                item.reply(answer)
+                print("Replied")
+            else:
+                item.reply("The image is not of a format compatible with sauceNAO \n\n ^I ^am ^a ^bot. ^give ^feedback ^to u/GoblinHater.^Wrong ^sauce? ^Reply ^with ^wrong")
+        if item.body.lower() == "wrong":
+            print("Incorrect sauce detected")
+            parent_comment = item.parent()
+            parent_comment.delete()
+            item.reply("Thanks for notifying. I have deleted my comment")
+            print("Incorrect sauce deleted")
     print("Got mentions")
     Clear_inbox(Unread_list())
 
 
+
 # Function to reply in Passed subreddits
-def subredditReply(post):
+def subredditReply():
     allids = get_submission_ids_set()
     # print(allids)
-    #for post in reddit.subreddit(PASSED_SUBREDDIT).stream.submissions():
+    for post in reddit.subreddit(PASSED_SUBREDDIT).stream.submissions():
         # print(dir(post))
-    if post.id not in allids:
+        if post.id not in allids:
             # print(allids)
             # allids.add(post.id)
-        print(post.url)
-        print("New post in "+str(post.subreddit))
-        print(post.id)
-        LogID(str(post.id))
-        print("logged")
-        answer = getSauceSubreddit(post.url)
-        if answer:
-            print("replying......")
-            if str(post.subreddit) in MODERATING_SUBREDDIT:
-                post.reply(answer).mod.distinguish(sticky=True)
+            print(post.url)
+            print("New post in "+str(post.subreddit))
+            print(post.id)
+            LogID(str(post.id))
+            print("logged")
+            if str(post.url)[-3::] == "jpg" or str(post.url)[-3::] == "png" or str(post.url)[-4::] == "jpeg" or str(post.url)[-3::] == "gif":
+                answer = GetSauce(post.url, True)
+                time.sleep(7)
+                if answer:
+                    print("replying......")
+                    if str(post.subreddit) in MODERATING_SUBREDDIT:
+                        post.reply(answer).mod.distinguish(sticky=True)
+                    else:
+                        post.reply(answer)
+                    print("replied")
+                else:
+                    print("Not Results")
             else:
-                post.reply(answer)
-            print("replied")
-        else:
-            print("Not Results")
+                print("Not an image")
 
 
 # To log new submission id in the text file
@@ -118,17 +129,20 @@ def get_submission_ids_set():
 # I used a set so that in the subredditReply function I can have a constant lookup time
 
 # To update ids if a new subreddit is passed
-# Remove all ids that are in the text document already to eliminate duplicates
-def update_ids_text(passed):
+# Remove all ids that are in the text document already to eliminate duplicates(redundant)
+# Now automatically removes old entries and appends new ones
+def update_ids_text():
+    deletion = open("postid.txt", 'w')
+    deletion.write("IDS OF ALL COMMENTS IVE REPLIED TO")
+    deletion.close()
     file = open("postid.txt", 'a')
     i = 0
-    for submission in reddit.subreddit(passed).stream.submissions():
+    for submission in reddit.subreddit(PASSED_SUBREDDIT).stream.submissions():
         i += 1
         file.write("\n"+submission.id)
         if i == 100:
             break
     file.close()
-
 
 def run_bot():
     lastCheckedMentionsTime = time.time()
