@@ -89,7 +89,7 @@ def subredditReply():
             print("logged")
             if str(post.url)[-3::] == "jpg" or str(post.url)[-3::] == "png" or str(post.url)[-4::] == "jpeg" or str(post.url)[-3::] == "gif":
                 answer = GetSauce(post.url, True)
-                time.sleep(7)
+                time.sleep(7) # Time gap because sauceNAO rate limits to 4 searches per 30 seconds.
                 if answer:
                     print("replying......")
                     if str(post.subreddit) in MODERATING_SUBREDDIT:
