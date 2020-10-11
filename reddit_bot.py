@@ -11,7 +11,8 @@ PASSED_SUBREDDIT = ["Animefoot",
                     "AnimeBooty",
                     "AnimeFeets",
                     "sauceNAOcheckbot",
-                    "AzurLaneXXX"]
+                    "AzurLaneXXX",
+                   "hentaipasties"]
 
 MODERATING_SUBREDDIT = ["sauceNAOcheckbot",
                        "AnimeFeets"]
