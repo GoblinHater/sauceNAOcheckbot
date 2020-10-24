@@ -59,34 +59,35 @@ def GetSauce(url,isSubreddit = False):
             saucelink = ""
             # Loop through all the results
             for post in all_titles:
-                subpost_similarity = soup.find('div', class_='resultsimilarityinfo')
-                subpost_similarity = float(subpost_similarity.text[0:-1])
-                # Quality check for 2nd result onwards
-                if subpost_similarity > 70 and abs(subpost_similarity - similarity_i) < 25:
-                    content_check = post.find('div', class_='resultcontentcolumn')
-                    if content_check is not None:
-                        if "pixiv" in content_check.text.lower() or "da" in content_check.text.lower() or "seiga" in content_check.text.lower():
-                            if content_check.find('a'):
-                                for link in content_check.find_all('a'):
+                subpost_similarity = post.find('div', class_='resultsimilarityinfo')
+                if subpost_similarity is not None:
+                    subpost_similarity = float(subpost_similarity.text[0:-1])
+                    # Quality check for 2nd result onwards
+                    if subpost_similarity > 70 and abs(subpost_similarity - similarity_i) < 25:
+                        content_check = post.find('div', class_='resultcontentcolumn')
+                        if content_check is not None:
+                            if "pixiv" in content_check.text.lower() or "da" in content_check.text.lower() or "seiga" in content_check.text.lower():
+                                if content_check.find('a'):
+                                    for link in content_check.find_all('a'):
+                                        print(link.get('href'))
+                                        saucelink = link.get('href')
+                                        break
+                        if saucelink != "":
+                            similarity_i = subpost_similarity
+                            break
+
+                        misc_check = post.find('div', class_='resultmiscinfo')
+                        # For GelBooru/DanBooru etc. type of links
+                        if misc_check is not None:
+                            if misc_check.find('a'):
+                                for link in misc_check.find_all('a'):
                                     print(link.get('href'))
                                     saucelink = link.get('href')
                                     break
-                    if saucelink != "":
-                        similarity_i = subpost_similarity
-                        break
-    
-                    misc_check = post.find('div', class_='resultmiscinfo')
-                    # For GelBooru/DanBooru etc. type of links
-                    if misc_check is not None:
-                        if misc_check.find('a'):
-                            for link in misc_check.find_all('a'):
-                                print(link.get('href'))
-                                saucelink = link.get('href')
-                                break
-    
-                    if saucelink != "":
-                        similarity_i = subpost_similarity
-                        break
+
+                        if saucelink != "":
+                            similarity_i = subpost_similarity
+                            break
     
             print("sauce: " + str(saucelink))
             if len(saucelink) > 0:
