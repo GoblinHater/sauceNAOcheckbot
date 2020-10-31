@@ -24,7 +24,7 @@ def GetSauce(url,isSubreddit = False):
         if all_titles:
             first_title = all_titles[0]
             first_match = first_title.find('div', class_='resultcontent')
-            #print(first_match)
+            # print(first_match)
             # If there are no resuls
             if first_match is None:
                 if not isSubreddit:
@@ -33,40 +33,41 @@ def GetSauce(url,isSubreddit = False):
                 else:
                     print("No results found")
                     return ""
-    
+
             title = first_match.find('div', class_='resulttitle')
             titletp = str(title.get_text(separator=" ").strip())
             titletp.replace("  ", " ")
             titletp += "\n\n"
-            print("titletp: "+titletp)
-    
+            # print("titletp: "+titletp)
+
             content = first_match.find('div', class_='resultcontentcolumn')
             fullcontnt = content.get_text(separator=" ").strip()
-            print("full contnt: ", end="")
+            # print("full contnt: ", end="")
             fullcontnt.replace("  ", " ")
             fullcontnt += "\n\n"
-            print(fullcontnt)
-    
+            # print(fullcontnt)
+
             similar = soup.find('div', class_="resultsimilarityinfo")
     # Now 60% requirement for mentions is also 60%
             similarity_i = float(similar.text[0:-1])
             if similarity_i < 60 and isSubreddit:
                 print("Similarity of the result was less than 60")
                 return ""
-    
+
             print("similarity of first result:", similarity_i)
-    
+
             saucelink = ""
             # Loop through all the results
             for post in all_titles:
                 subpost_similarity = post.find('div', class_='resultsimilarityinfo')
-                if subpost_similarity is not None:
+                if subpost_similarity:
                     subpost_similarity = float(subpost_similarity.text[0:-1])
                     # Quality check for 2nd result onwards
-                    if subpost_similarity > 70 and abs(subpost_similarity - similarity_i) < 25:
+                    if subpost_similarity > 65 and abs(subpost_similarity - similarity_i) < 25:
+                        # print(subpost_similarity)
                         content_check = post.find('div', class_='resultcontentcolumn')
                         if content_check is not None:
-                            if "pixiv" in content_check.text.lower() or "da" in content_check.text.lower() or "seiga" in content_check.text.lower():
+                            if "pixiv" in content_check.text.lower() or "da" in content_check.text.lower() or "seiga" in content_check.text.lower() or "nijie" in content_check.text.lower():
                                 if content_check.find('a'):
                                     for link in content_check.find_all('a'):
                                         print(link.get('href'))
@@ -88,14 +89,18 @@ def GetSauce(url,isSubreddit = False):
                         if saucelink != "":
                             similarity_i = subpost_similarity
                             break
-    
+
             print("sauce: " + str(saucelink))
-            if len(saucelink) > 0:
+            if len(saucelink) > 0 and float(similarity_i) > 65:
                 replyPos = "**Sauce:** " + titletp + "[Sauce link]" + "(" + saucelink + ")\n\n" + "Similarity = " + str(similarity_i) + "\n\n" + footer
                 return replyPos
-            else:
+            elif len(saucelink) == 0 and float(similarity_i) > 65 and isSubreddit:
                 replyPos = "**Sauce:** " + titletp + fullcontnt + "Similarity = " + str(similarity_i) + "\n\n" + footer
                 return replyPos
+            elif not isSubreddit:
+                replyPos = "**Sauce:** " + titletp + fullcontnt + "Similarity = " + str(similarity_i) + "\n\n" + footer
+                return replyPos
+            return ""
         else:
             if not isSubreddit:
                 replyNeg = Wrong_file + footer
@@ -103,6 +108,5 @@ def GetSauce(url,isSubreddit = False):
             else:
                 print("No result")
                 return ""
-    except:
-        print("Internet not working")
-        
+    except Exception as e:
+        print(e)
