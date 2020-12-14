@@ -21,7 +21,7 @@ from Replies import *
 def GetSauce(url, isSubreddit = False, isGallery = False):
     search = "https://saucenao.com/search.php"
     login_page = "https://saucenao.com/user.php"
-    payload = {'username': 'Goblinhater', 'password': 'laddoo2520'}
+    payload = {'username': 'username', 'password': 'password'}
     with requests.Session() as session:
         try:
             login = session.post(login_page, data=payload)
