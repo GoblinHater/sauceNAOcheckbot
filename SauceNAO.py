@@ -1,10 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 from Replies import *
+import time
+import lxml.html
+import pprint
+
 
 # Below are different test cases I used:-
 
-# img = "https://i0.wp.com/nekyou.mangadex.com/wp-content/uploads/sites/83/2019/08/00202.jpg?fit=713%2C1024&ssl=1"
+#img = "https://i0.wp.com/nekyou.mangadex.com/wp-content/uploads/sites/83/2019/08/00202.jpg?fit=713%2C1024&ssl=1"
 # img = "https://i.imgur.com/chYG9bU.png"
 # pixiv img:
 # img = "https://i.pinimg.com/originals/61/2f/63/612f63b9efa09cdf65ae3576ca3504b3.jpg"
@@ -21,10 +25,17 @@ from Replies import *
 def GetSauce(url, isSubreddit = False, isGallery = False):
     search = "https://saucenao.com/search.php"
     login_page = "https://saucenao.com/user.php"
-    payload = {'username': 'username', 'password': 'password'}
+    payload = {'username': 'user', 'password': 'pass'}
     with requests.Session() as session:
         try:
-            login = session.post(login_page, data=payload)
+            login = session.get(login_page)
+            login_html = lxml.html.fromstring(login.text)
+            hidden_inputs = login_html.xpath(r'//form//input[@type="hidden"]')
+            payload = {x.attrib["name"]: x.attrib["value"] for x in hidden_inputs}
+            payload['username'] = 'user'
+            payload['password'] = 'pass'
+            cookies = dict(login.cookies)
+            login_final = session.post(login_page, data=payload, allow_redirects=True, verify = False, cookies = cookies)
             r = session.post(search, data={'url': url}, timeout=5)
             soup = BeautifulSoup(r.content, 'html.parser')
             # print(soup.prettify())
@@ -126,16 +137,19 @@ def GetSauce(url, isSubreddit = False, isGallery = False):
                 return ""
             else:
                 if isGallery:
-                    return Negative_reply + footer
+                    return Negative_reply
                 if not isSubreddit:
-                    replyNeg = Wrong_file + footer
+                    replyNeg = Wrong_file
                     return replyNeg
                 else:
                     # if isGallery:
-                    #    return "No results on sauceNAO"
+                    #    return  "No results on sauceNAO"
                     print("No result")
                     print(r.text)
+                    if "Too many failed search attempts, try again later" in r.text:
+                        print("Waiting for some time")
+                        time.sleep(900)
                     return ""
         except Exception as e:
             print(e)
-#print(GetSauce("https://i.redd.it/9e1lv7149p161.jpg"))
+#print(GetSauce("https://i.redd.it/8ipn6g50nl561.jpg"))
